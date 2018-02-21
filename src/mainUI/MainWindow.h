@@ -18,6 +18,7 @@ class MainWindow;
 
 class QSettings;
 class HttpListener;
+class FileManager;
 
 class MainWindow : public QMainWindow
 {
@@ -39,7 +40,10 @@ private:
 	void InitUI();
 	void ConnectSignalsToSlots();
 
-	QString		m_LastFolderOpen;
+	void CopyReader();
+
+
+	QString			m_LastFolderOpen;
 
 	// file controller
 	unsigned int	m_MaxAge;
@@ -61,6 +65,8 @@ private:
 	unsigned int	m_MaxMultiPartSize;
 
 	HttpListener*	m_HttpListener;
+
+	FileManager*	m_FileManager;
 
     Ui::MainWindow *ui;
 };

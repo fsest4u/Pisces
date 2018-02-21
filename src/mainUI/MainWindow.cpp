@@ -8,33 +8,44 @@
 **
 *************************************************************************/
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QtDebug>
+#include <QtCore/QStandardPaths>
 #include <QtCore/QSettings>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 
 #include "httplistener.h"
+#include "PiscesConstants.h"
+#include "PiscesFeatures.h"
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "FileManager.h"
 #include "misc/SettingData.h"
 #include "misc/RequestMapper.h"
+#include "misc/Utility.h"
 
 static const QString SETTINGS_GROUP					= "mainWindow";
 static const QString SETTINGS_GROUP_FILE_CONTROLLER = "docroot";
 static const QString SETTINGS_GROUP_LISTENER		= "listener";
 
+const QString PISCES_LOCATION_TEMP = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/pisces";
+const QString PISCES_DIR_READER = "reader";
+const QString PISCES_DIR_CONTENTS = "contents";
+const QString PISCES_INDEX_FILE = "index.html";
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
 	, ui(new Ui::MainWindow)
+	, m_FileManager(new FileManager())
 	, m_LastFolderOpen("")
 	, m_HttpListener(NULL)
 	, m_MaxAge(60000)
 	, m_Encoding("UTF-8")
-	, m_Path("piscesReader")
-	, m_Format("testFormat")
-	, m_Filename("testName")
+	, m_Path("")
+	, m_Format("")
+	, m_Filename("")
 	, m_MaxCachedFileSize(65536)
 	, m_CacheSize(1000000)
 	, m_CacheTime(60000)
@@ -62,6 +73,11 @@ MainWindow::~MainWindow()
 	if (m_HttpListener) {
 		delete m_HttpListener;
 		m_HttpListener = 0;
+	}
+
+	if (m_FileManager) {
+		delete m_FileManager;
+		m_FileManager = 0;
 	}
 
 }
@@ -206,7 +222,9 @@ void MainWindow::InitUI()
 	// Configure and start the TCP listener
 	QSettings* listenerSettings = new QSettings(settings.fileName(), QSettings::IniFormat, qApp);
 	listenerSettings->beginGroup(SETTINGS_GROUP_LISTENER);
-	new HttpListener(listenerSettings, new RequestMapper(qApp), qApp);
+	m_HttpListener = new HttpListener(listenerSettings, new RequestMapper(qApp), qApp);
+
+	CopyReader();
 }
 
 void MainWindow::ConnectSignalsToSlots()
@@ -217,19 +235,12 @@ void MainWindow::ConnectSignalsToSlots()
 void MainWindow::on_actionOpen_triggered()
 {
 	qDebug() << "on_actionOpen_triggered()";
-	// select directory
-	if (!QFileInfo(m_LastFolderOpen).exists()) {
-		m_LastFolderOpen = QDir::homePath();
-	}
 
-	QString dirName = QFileDialog::getExistingDirectory(this, tr("Open Epub Directory"), m_LastFolderOpen
-														, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-	if (dirName.isEmpty()) {
-		QMessageBox::warning(this, tr("Open Epub Directory"), tr("Please select a directory to open."));
-		return;
+	QString baseName = m_FileManager->OpenEpubFile(m_LastFolderOpen);
+	if (!baseName.isEmpty()) {
+		QString loadFile = m_FileManager->LoadReader(baseName, m_Port);
+		ui->webView->load(loadFile);
 	}
-	m_LastFolderOpen = dirName;
-
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -242,4 +253,11 @@ void MainWindow::on_actionExit_triggered()
 		this->close();
 		return;
 	}
+}
+
+void MainWindow::CopyReader()
+{
+	QString source = QCoreApplication::applicationDirPath() + "/" + PISCES_DIR_READER;
+	QString destination = PISCES_LOCATION_TEMP + "/" + PISCES_DIR_READER;
+	Utility::copyDir(source, destination, true);
 }

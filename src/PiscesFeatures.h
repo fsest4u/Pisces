@@ -9,15 +9,13 @@
 *************************************************************************/
 
 #pragma once
-#ifndef PISCES_CONTANTS_H
-#define PISCES_CONTANTS_H
+#ifndef PISCES_FEATURES_H
+#define PISCES_FEATURES_H
 
-class QString;
-class QStringList;
+#if 0
+#define FEATURE_OPEN_EPUB_FILE
+#else
+#define FEATURE_OPEN_EPUB_DIRECTORY
+#endif
 
-extern const QString PISCES_LOCATION_TEMP;
-extern const QString PISCES_DIR_READER;
-extern const QString PISCES_DIR_CONTENTS;
-extern const QString PISCES_INDEX_FILE;
-
-#endif	// PISCES_CONTANTS_H
+#endif	// PISCES_FEATURES_H

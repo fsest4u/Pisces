@@ -20,11 +20,14 @@ set(CMAKE_AUTOMOC ON)
 set( MAIN_FILES
 	main.cpp
     PiscesConstants.h
+	PiscesFeatures.h
 )
 
 set( MAINUI_FILES 
 	mainUI/MainWindow.h
 	mainUI/MainWindow.cpp
+	mainUI/FileManager.h
+	mainUI/FileManager.cpp
 )
 
 set( MISC_FILES 
@@ -32,6 +35,8 @@ set( MISC_FILES
     misc/SettingData.cpp
     misc/RequestMapper.h
     misc/RequestMapper.cpp
+	misc/Utility.h
+	misc/Utility.cpp
 )
 
 set( UI_FILES
