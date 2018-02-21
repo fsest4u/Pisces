@@ -16,6 +16,9 @@ namespace Ui {
 class MainWindow;
 }
 
+class QSettings;
+class HttpListener;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -37,6 +40,27 @@ private:
 	void ConnectSignalsToSlots();
 
 	QString		m_LastFolderOpen;
+
+	// file controller
+	unsigned int	m_MaxAge;
+	QString			m_Encoding;
+	QString			m_Path;
+	QString			m_Format;
+	QString			m_Filename;
+	unsigned int	m_MaxCachedFileSize;
+	unsigned int	m_CacheSize;
+	unsigned int	m_CacheTime;
+
+	// http listener
+	unsigned int	m_Port;
+	unsigned int	m_MinThread;
+	unsigned int	m_MaxThread;
+	unsigned int	m_CleanupInterval;
+	unsigned int	m_ReadTimeout;
+	unsigned int	m_MaxRequestSize;
+	unsigned int	m_MaxMultiPartSize;
+
+	HttpListener*	m_HttpListener;
 
     Ui::MainWindow *ui;
 };

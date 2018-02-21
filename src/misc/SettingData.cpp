@@ -15,7 +15,7 @@
 
 
 SettingData::SettingData()
-	: QSettings(QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/aquarius/pisces.ini", QSettings::IniFormat)
+	: QSettings(QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/pisces/pisces.ini", QSettings::IniFormat)
 {
 }
 

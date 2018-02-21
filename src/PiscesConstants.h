@@ -9,21 +9,14 @@
 *************************************************************************/
 
 #pragma once
-#ifndef SETTINGDATA_H
-#define SETTINGDATA_H
+#ifndef PISCES_CONTANTS_H
+#define PISCES_CONTANTS_H
 
-#include <QtCore/QSettings>
+class QString;
+class QStringList;
 
-class SettingData : public QSettings
-{
-public:
-	SettingData();
-	virtual ~SettingData();
+extern const QString AQUARIUS_LOCATION_DOCUMENTS;
+extern const QString AQUARIUS_LOCATION_TEMP;
 
 
-private:
-
-
-};
-
-#endif // SETTINGDATA_H
+#endif	// PISCES_CONTANTS_H

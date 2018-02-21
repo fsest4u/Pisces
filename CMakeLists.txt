@@ -26,4 +26,5 @@ set( PISCES_CODE_NAME Pisces )
 
 #########################################################
 
+add_subdirectory( 3rdparty/ )
 add_subdirectory( src/ )
