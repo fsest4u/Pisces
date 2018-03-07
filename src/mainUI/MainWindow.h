@@ -1,12 +1,13 @@
 /************************************************************************
 **
-**  Copyright (C) 2018  spdevapp <spdevapp@joara.com>
+**  Copyright (C) 2018  fsest4u <fsest4u@gmail.com>
 **
-**  This file is part of Aquarius.
+**  This file is part of Pisces.
 **
 **  Pisces is Epub PC Viewer.
 **
 *************************************************************************/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
