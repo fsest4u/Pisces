@@ -19,5 +19,6 @@ extern const QString PISCES_LOCATION_TEMP;
 extern const QString PISCES_DIR_READER;
 extern const QString PISCES_DIR_CONTENTS;
 extern const QString PISCES_INDEX_FILE;
+extern const QString PISCES_INDEX_FILE_ORIG;
 
 #endif	// PISCES_CONTANTS_H

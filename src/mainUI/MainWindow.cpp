@@ -30,11 +30,6 @@ static const QString SETTINGS_GROUP					= "mainWindow";
 static const QString SETTINGS_GROUP_FILE_CONTROLLER = "docroot";
 static const QString SETTINGS_GROUP_LISTENER		= "listener";
 
-const QString PISCES_LOCATION_TEMP = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/pisces";
-const QString PISCES_DIR_READER = "reader";
-const QString PISCES_DIR_CONTENTS = "contents";
-const QString PISCES_INDEX_FILE = "index.html";
-
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
 	, ui(new Ui::MainWindow)
@@ -60,7 +55,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 	ReadSetting();
-	InitUI();
 	ConnectSignalsToSlots();
 }
 
@@ -212,6 +206,16 @@ void MainWindow::WriteSetting()
 
 void MainWindow::InitUI()
 {
+	if (RequestMapper::staticFileController) {
+		delete RequestMapper::staticFileController;
+		RequestMapper::staticFileController = 0;
+	}
+
+	if (m_HttpListener) {
+		delete m_HttpListener;
+		m_HttpListener = 0;
+	}
+
 	SettingData settings;
 
 	// Configure static file controller
@@ -236,9 +240,13 @@ void MainWindow::on_actionOpen_triggered()
 {
 	qDebug() << "on_actionOpen_triggered()";
 
-	QString baseName = m_FileManager->OpenEpubFile(m_LastFolderOpen);
-	if (!baseName.isEmpty()) {
-		QString loadFile = m_FileManager->LoadReader(baseName, m_Port);
+	QString filename = m_FileManager->OpenEpubFile(m_LastFolderOpen);
+	if (!filename.isEmpty()) {
+
+		InitUI();
+		ui->webView->page()->settings()->clearMemoryCaches();
+
+		QString loadFile = m_FileManager->LoadReader(filename, m_Port);
 		ui->webView->load(loadFile);
 	}
 }

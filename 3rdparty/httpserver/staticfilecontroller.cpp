@@ -178,7 +178,11 @@ void StaticFileController::setContentType(QString fileName, HttpResponse& respon
     {
         response.setHeader("Content-Type", "application/font-otf");
     }
-    // Todo: add all of your content types
+	else if (fileName.endsWith(".epub"))
+	{
+		response.setHeader("Content-Type", "application/epub+zip");
+	}
+	// Todo: add all of your content types
     else
     {
         qDebug("StaticFileController: unknown MIME type for filename '%s'", qPrintable(fileName));

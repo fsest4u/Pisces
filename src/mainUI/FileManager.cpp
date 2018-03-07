@@ -22,6 +22,12 @@
 #include "misc/Utility.h"
 
 
+const QString PISCES_LOCATION_TEMP = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/pisces";
+const QString PISCES_DIR_READER = "reader";
+const QString PISCES_DIR_CONTENTS = "contents";
+const QString PISCES_INDEX_FILE = "index.html";
+const QString PISCES_INDEX_FILE_ORIG = "index.html.orig";
+
 const QString FILE_EXTENSION = "EPUB File (*.epub)";
 
 const QString LOCAL_IP_ADDRESS = "http://127.0.0.1";
@@ -181,6 +187,7 @@ void FileManager::ConnectSignalsToSlots()
 
 QString FileManager::OpenEpubFile(QString lastFolderOpen)
 {
+	QString filename;
 
 #ifdef FEATURE_OPEN_EPUB_DIRECTORY
 	// select directory
@@ -194,8 +201,8 @@ QString FileManager::OpenEpubFile(QString lastFolderOpen)
 		return QString("");
 	}
 
-	QString baseName = QFileInfo(source).completeBaseName();
-	QString destination = PISCES_LOCATION_TEMP + "/"+ PISCES_DIR_CONTENTS +"/" + baseName;
+	filename = QFileInfo(source).completeBaseName();
+	QString destination = PISCES_LOCATION_TEMP + "/"+ PISCES_DIR_CONTENTS +"/" + filename;
 	// check directory
 	if (!QFileInfo(destination).exists()) {
 		// copy directory
@@ -206,16 +213,17 @@ QString FileManager::OpenEpubFile(QString lastFolderOpen)
 		Utility::copyDir(source, destination, true);
 	}
 	
-	return baseName;
+	return filename;
 #endif
 }
 
 
-void FileManager::SetReader(QString baseName)
+void FileManager::SetReader(QString source)
 {
 	// read index.html
+	QString oriPath = PISCES_LOCATION_TEMP + "/" + PISCES_DIR_READER + "/" + PISCES_INDEX_FILE_ORIG;
 	QString fullpath = PISCES_LOCATION_TEMP + "/" + PISCES_DIR_READER + "/" + PISCES_INDEX_FILE;
-	QString content = Utility::ReadUnicodeTextFile(fullpath);
+	QString content = Utility::ReadUnicodeTextFile(oriPath);
 
 	// remove index.html
 	if (QFileInfo(fullpath).exists()) {
@@ -224,15 +232,18 @@ void FileManager::SetReader(QString baseName)
 	}
 
 	// write index.html
-	QString filename = "../" + PISCES_DIR_CONTENTS + "/" + baseName + "/";
+	QString filename;
+
+	filename = "../" + PISCES_DIR_CONTENTS + "/" + source + "/";
+
 	content = QString(content).arg(filename);
 	Utility::WriteUnicodeTextFile(content, fullpath);
 
 }
 
-QString FileManager::LoadReader(QString baseName, unsigned int port)
+QString FileManager::LoadReader(QString filename, unsigned int port)
 {
-	SetReader(baseName);
+	SetReader(filename);
 	return QString("%1:%2/%3/%4").arg(LOCAL_IP_ADDRESS).arg(port).arg(PISCES_DIR_READER).arg(PISCES_INDEX_FILE);
 }
 
