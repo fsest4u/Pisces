@@ -32,7 +32,7 @@ public:
     FileManager(QWidget* parent = 0);
     virtual ~FileManager();
 
-	QString			OpenEpubFile(QString lastFolderOpen);
+	QString			OpenEpubFile();
 	QString			LoadReader(QString baseName, unsigned int port);
 
 signals:
@@ -48,6 +48,9 @@ private:
 	void			ConnectSignalsToSlots();
 
 	void			SetReader(QString baseName);
+
+	QString			m_LastFolderOpen;
+
 
 };
 

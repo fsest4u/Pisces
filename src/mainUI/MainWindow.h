@@ -44,7 +44,6 @@ private:
 	void CopyReader();
 
 
-	QString			m_LastFolderOpen;
 
 	// file controller
 	unsigned int	m_MaxAge;

@@ -34,7 +34,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 	, m_FileManager(new FileManager())
-	, m_LastFolderOpen("")
 	, m_HttpListener(NULL)
 	, m_MaxAge(60000)
 	, m_Encoding("UTF-8")
@@ -96,9 +95,6 @@ void MainWindow::ReadSetting()
 		restoreGeometry(geometry);
 	}
 
-	// Last folder open
-	m_LastFolderOpen = settings.value("lastfolderopen").toString();
-
 	settings.endGroup();
 
 	/////////////////////////////////////////////////////
@@ -155,8 +151,6 @@ void MainWindow::WriteSetting()
 	settings.beginGroup(SETTINGS_GROUP);
 	// The size of the window and it's full screen status
 	settings.setValue("geometry", saveGeometry());
-
-	settings.setValue("lastfolderopen", m_LastFolderOpen);
 
 	settings.endGroup();
 
@@ -240,7 +234,7 @@ void MainWindow::on_actionOpen_triggered()
 {
 	qDebug() << "on_actionOpen_triggered()";
 
-	QString filename = m_FileManager->OpenEpubFile(m_LastFolderOpen);
+	QString filename = m_FileManager->OpenEpubFile();
 	if (!filename.isEmpty()) {
 
 		InitUI();

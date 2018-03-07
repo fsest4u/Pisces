@@ -12,6 +12,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStandardPaths>
 #include <QtCore/QFile>
+#include <QtCore/QSettings>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 
@@ -20,6 +21,9 @@
 #include "PiscesFeatures.h"
 
 #include "misc/Utility.h"
+#include "misc/SettingData.h"
+
+static const QString SETTINGS_GROUP = "fileManager";
 
 
 const QString PISCES_LOCATION_TEMP = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/pisces";
@@ -36,6 +40,7 @@ const QString LOCAL_IP_ADDRESS = "http://127.0.0.1";
 
 FileManager::FileManager(QWidget* parent)
 	: QWidget(parent)
+	, m_LastFolderOpen("")
 {
 	ReadSetting();
 
@@ -50,33 +55,71 @@ FileManager::~FileManager()
 
 void FileManager::ReadSetting()
 {
+	SettingData settings;
+
+	if (!QFileInfo(settings.fileName()).exists()) {
+		WriteSetting();
+	}
+
+	/////////////////////////////////////////////////////
+	// SETTINGS_GROUP
+	/////////////////////////////////////////////////////
+	settings.beginGroup(SETTINGS_GROUP);
+	// The size of the window and it's full screen status
+	QByteArray geometry = settings.value("geometry").toByteArray();
+
+	if (!geometry.isNull()) {
+		restoreGeometry(geometry);
+	}
+
+	// Last folder open
+	m_LastFolderOpen = settings.value("lastfolderopen").toString();
+
+	settings.endGroup();
+
 }
 
 void FileManager::WriteSetting()
 {
+	SettingData settings;
+
+	/////////////////////////////////////////////////////
+	// SETTINGS_GROUP
+	/////////////////////////////////////////////////////
+	settings.beginGroup(SETTINGS_GROUP);
+	// The size of the window and it's full screen status
+	settings.setValue("geometry", saveGeometry());
+
+	settings.setValue("lastfolderopen", m_LastFolderOpen);
+
+	settings.endGroup();
 }
 
 void FileManager::ConnectSignalsToSlots()
 {
 }
 
-QString FileManager::OpenEpubFile(QString lastFolderOpen)
+QString FileManager::OpenEpubFile()
 {
 	QString filename;
 
 #ifdef FEATURE_OPEN_EPUB_DIRECTORY
 
 	// select directory
-	if (!QFileInfo(lastFolderOpen).exists()) {
-		lastFolderOpen = QDir::homePath();
+	if (!QFileInfo(m_LastFolderOpen).exists()) {
+		m_LastFolderOpen = QDir::homePath();
 	}
 
-	QString source = QFileDialog::getExistingDirectory(this, tr("Open Epub Directory"), lastFolderOpen, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	QString source = QFileDialog::getExistingDirectory(this
+		, tr("Open Epub Directory")
+		, m_LastFolderOpen
+		, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	if (source.isEmpty() || !QFileInfo(source + "/mimetype").exists()) {
 		QMessageBox::warning(this, tr("Open Epub Directory"), tr("Please select a directory to open a epub."));
 		return QString("");
 	}
 
+	m_LastFolderOpen = QFileInfo(source).absolutePath();
 	filename = QFileInfo(source).completeBaseName();
 	QString destination = PISCES_LOCATION_TEMP + "/"+ PISCES_DIR_CONTENTS +"/" + filename;
 	// check directory
@@ -92,12 +135,18 @@ QString FileManager::OpenEpubFile(QString lastFolderOpen)
 #else // FEATURE_OPEN_EPUB_FILE
 
 	QString default_filter = "*";
-	QString source = QFileDialog::getOpenFileName(this,
-		tr("Open Epub File"),
-		lastFolderOpen,
-		FILE_EXTENSION,
-		&default_filter);
+	QString source = QFileDialog::getOpenFileName(this
+		, tr("Open Epub File")
+		, m_LastFolderOpen
+		, FILE_EXTENSION
+		, &default_filter);
 
+	if (source.isEmpty()) {
+		QMessageBox::warning(this, tr("Open Epub File"), tr("Please select a epub file."));
+		return QString("");
+	}
+
+	m_LastFolderOpen = QFileInfo(source).absolutePath();
 	filename = QFileInfo(source).fileName();
 	if (!filename.isEmpty()) {
 		QString destination = PISCES_LOCATION_TEMP + "/" + PISCES_DIR_CONTENTS + "/" + filename;
