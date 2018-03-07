@@ -190,6 +190,7 @@ QString FileManager::OpenEpubFile(QString lastFolderOpen)
 	QString filename;
 
 #ifdef FEATURE_OPEN_EPUB_DIRECTORY
+
 	// select directory
 	if (!QFileInfo(lastFolderOpen).exists()) {
 		lastFolderOpen = QDir::homePath();
@@ -212,9 +213,32 @@ QString FileManager::OpenEpubFile(QString lastFolderOpen)
 		// copy directory
 		Utility::copyDir(source, destination, true);
 	}
-	
-	return filename;
+
+#else // FEATURE_OPEN_EPUB_FILE
+
+	QString default_filter = "*";
+	QString source = QFileDialog::getOpenFileName(this,
+		tr("Open Epub File"),
+		lastFolderOpen,
+		FILE_EXTENSION,
+		&default_filter);
+
+	filename = QFileInfo(source).fileName();
+	if (!filename.isEmpty()) {
+		QString destination = PISCES_LOCATION_TEMP + "/" + PISCES_DIR_CONTENTS + "/" + filename;
+		// copy file
+		//Utility::CopyFiles(source, destination);
+		bool bFail = QFile::copy(source, destination);
+		// exist epub file
+		if (!bFail) {
+			QFile::remove(destination);
+			QFile::copy(source, destination);
+		}
+	}
+
 #endif
+
+	return filename;
 }
 
 
@@ -233,9 +257,11 @@ void FileManager::SetReader(QString source)
 
 	// write index.html
 	QString filename;
-
+#ifdef FEATURE_OPEN_EPUB_DIRECTORY
 	filename = "../" + PISCES_DIR_CONTENTS + "/" + source + "/";
-
+#else	// FEATURE_OPEN_EPUB_FILE
+	filename = "../" + PISCES_DIR_CONTENTS + "/" + source;
+#endif
 	content = QString(content).arg(filename);
 	Utility::WriteUnicodeTextFile(content, fullpath);
 
